@@ -1,8 +1,7 @@
 import sys, os, re
 from flask import Flask, flash, request, redirect, render_template
 from werkzeug.utils import secure_filename
-
-import sql
+import sqlite3
 from config import *
 
 
@@ -34,29 +33,19 @@ def allowed_file(filename):
 
 # Database implementation
 
-@app.route('/addrec', methods=['POST', 'GET'])
-def addrec():
-    if request.method == 'POST':
-        try:
-            lastname = request.form['lastname']
-            firstname = request.form['firstname']
+
+def get_db_connection():
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
-            with sql.connect("database.db") as con:
-                cur = con.cursor()
-                cur.execute("INSERT INTO students (lastname,firstname)
-                    VALUES(?, ?)",(lastname,firstname) )
-
-                con.commit()
-                msg = "Record successfully added"
-        except:
-            con.rollback()
-            msg = "error in insert operation"
-
-        finally:
-            return render_template("result.html", msg=msg)
-            con.close()
-
+@app.route('/')
+def index():
+    conn = get_db_connection()
+    posts = conn.execute('SELECT * FROM posts').fetchall()
+    conn.close()
+    return render_template('index.html', posts=posts)
 
 
 def upload_file():

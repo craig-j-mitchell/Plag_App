@@ -4,5 +4,5 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     lastname TEXT NOT NULL ,
     firstname TEXT NOT NULL,
-    currentgrade TEXT NOT NULL
+     TEXT NOT NULL
 );
