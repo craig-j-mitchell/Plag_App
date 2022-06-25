@@ -1,7 +1,10 @@
 import sys, os, re
 from flask import Flask, flash, request, redirect, render_template
 from werkzeug.utils import secure_filename
+
+import sql
 from config import *
+
 
 app = Flask(__name__)
 app.secret_key = app_key
@@ -28,6 +31,32 @@ def allowed_file(filename):
 
 
 @app.route('/upload', methods=['POST'])
+
+# Database implementation
+
+@app.route('/addrec', methods=['POST', 'GET'])
+def addrec():
+    if request.method == 'POST':
+        try:
+            lastname = request.form['lastname']
+            firstname = request.form['firstname']
+
+
+            with sql.connect("database.db") as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO students (lastname,firstname)
+                    VALUES(?, ?)",(lastname,firstname) )
+
+                con.commit()
+                msg = "Record successfully added"
+        except:
+            con.rollback()
+            msg = "error in insert operation"
+
+        finally:
+            return render_template("result.html", msg=msg)
+            con.close()
+
 
 
 def upload_file():
