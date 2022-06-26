@@ -1,8 +1,9 @@
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS students;
 
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    lastname TEXT NOT NULL ,
-    firstname TEXT NOT NULL,
-     TEXT NOT NULL
+CREATE TABLE students (
+    name TEXT,
+    addr TEXT ,
+    city TEXT,
+    pin TEXT
 );
+

@@ -1,12 +1,15 @@
 import sys, os, re
 from flask import Flask, flash, request, redirect, render_template
 from werkzeug.utils import secure_filename
-import sqlite3
+import sqlite3 as sql
 from config import *
+from init_db import *
+
 
 
 app = Flask(__name__)
 app.secret_key = app_key
+
 
 @app.route('/')
 def welcome():
@@ -33,19 +36,45 @@ def allowed_file(filename):
 
 # Database implementation
 
-
-def get_db_connection():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    return conn
+@app.route('/enternew')
+def new_student():
+   return render_template('student.html')
 
 
-@app.route('/')
-def index():
-    conn = get_db_connection()
-    posts = conn.execute('SELECT * FROM posts').fetchall()
-    conn.close()
-    return render_template('index.html', posts=posts)
+@app.route('/addrec', methods=['POST', 'GET'])
+def addrec():
+    if request.method == 'POST':
+        try:
+            nm = request.form['nm']
+            addr = request.form['add']
+            city = request.form['city']
+            pin = request.form['pin']
+
+            with sql.connect("database.db") as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO students (name,addr,city,pin) VALUES(?, ?, ?, ?)",(nm,addr,city,pin) )
+                con.commit()
+                msg = "Record successfully added"
+        except:
+            con.rollback()
+            msg = "error in insert operation"
+
+        finally:
+            return render_template("result.html", msg=msg)
+            con.close()
+
+
+@app.route('/list')
+def list():
+    con = sql.connect("database.db")
+    con.row_factory = sql.Row
+
+    cur = con.cursor()
+    cur.execute("select * from students")
+
+    rows = cur.fetchall();
+    return render_template("list.html", rows=rows)
+
 
 
 def upload_file():
